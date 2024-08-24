@@ -43,4 +43,4 @@ app.add_url_rule('/complete_transaction', 'complete_transaction', complete_trans
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create database tables
-    app.run(debug=True)
+    app.run()
