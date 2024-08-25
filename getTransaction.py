@@ -96,7 +96,7 @@ def get_transaction_details(transaction_id):
     if 'username' not in session:
         return jsonify({"message": "User not logged in!"}), 401
 
-    transaction = Transaction.query.filter_by(transaction_id=transaction_id).first()
+    transaction = Transaction.query.filter_by(transaction_id=transaction_id, status=2).first()
     payment = Payment.query.filter_by(transaction_id=transaction_id).first()
 
     if not transaction:
@@ -104,6 +104,13 @@ def get_transaction_details(transaction_id):
 
     if transaction.username != session['username'] and (not payment or payment.buyer_name != session['username']):
         return jsonify({"message": "You are not authorized to view this transaction"}), 403
+
+    
+    # Split the comma-separated images string back into a list
+    image_filenames = transaction.images.split(',')
+
+    # Generate the full URLs for each image
+    image_urls = [url_for('static', filename=f'uploads/{filename}', _external=True) for filename in image_filenames]
 
     transaction_data = {
         "transaction_id": str(transaction.transaction_id),
@@ -114,7 +121,8 @@ def get_transaction_details(transaction_id):
         "seller": transaction.username,
         "seller_number": transaction.phone_number,
         "url": transaction.url,
-        "order_details": transaction.order_details
+        "order_details": transaction.order_details,
+        "images": image_urls
 
     }
 
